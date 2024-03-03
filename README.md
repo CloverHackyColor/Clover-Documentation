@@ -3,6 +3,12 @@
 - Credit App: [macgapproject](https://macgapproject.github.io/) Is under [LICENSE](https://github.com/chris1111/Documentation_Clover/blob/Master/LICENSE-MG)
 - Credit HTML Build: [Github Wikito Converter](https://github.com/yakivmospan/github-wikito-converter)
 - Credit PDF Build: [wkhtmltopdf](https://github.com/wkhtmltopdf/wkhtmltopdf)
+- 
+#### ⬇︎ Build App: View Spoiler
+<details> 
+  <summary>Spoiler Build App</summary>
+
+  
 #### Build App: Prerequisite: `Xcode` installed
  Command Line Tools (CLT) f
  or Xcode (from `xcode-select --install` or [Developer Apple Command Line Tools](https://developer.apple.com/download/all/)
@@ -20,8 +26,9 @@ cd $HOME/Clover-Documentaion
 make
 ```
 
+</details>
 
-### Download Release App ➤ [Documentation_Clover](https://github.com/CloverHackyColor/Clover-Documentaion/releases/tag/V1)
+### Download Release App ➤ [Documentation_Clover.app](https://github.com/CloverHackyColor/Clover-Documentaion/releases/tag/V1)
 
 -------------------------------
 <img align="centert" width=
