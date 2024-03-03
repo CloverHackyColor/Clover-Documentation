@@ -1,4 +1,27 @@
 ### Welcome to the CloverBootloader Documentation [Clover Documentation Site](https://cloverhackycolor.github.io/Clover-Documentaion/)
+-------------------------------
+- Credit App: [macgapproject](https://macgapproject.github.io/) Is under [LICENSE](https://github.com/chris1111/Documentation_Clover/blob/Master/LICENSE-MG)
+- Credit HTML Build: [Github Wikito Converter](https://github.com/yakivmospan/github-wikito-converter)
+- Credit PDF Build: [wkhtmltopdf](https://github.com/wkhtmltopdf/wkhtmltopdf)
+#### Build App: Prerequisite: `Xcode` installed
+ Command Line Tools (CLT) f
+ or Xcode (from `xcode-select --install` or [Developer Apple Command Line Tools](https://developer.apple.com/download/all/)
+### Build project from command in macOS
+
+#### Clone the repository
+```bash
+
+git clone https://github.com/CloverHackyColor/Clover-Documentaion.git
+cd $HOME/Clover-Documentaion
+```
+
+#### Build
+```bash
+make
+```
+
+
+### Download Release App ➤ [Documentation_Clover](https://github.com/CloverHackyColor/Clover-Documentaion/releases/tag/V1)
 
 -------------------------------
 <img align="centert" width=
