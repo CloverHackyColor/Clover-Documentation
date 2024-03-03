@@ -3,7 +3,7 @@
 -------------------------------
 <img align="centert" width=
     "150" height="150" src="https://user-images.githubusercontent.com/6248794/164569238-e9372ecc-1534-4dda-a39b-fb86304ea7a5.png">
-## TABLE OF CONTENTS
+### TABLE OF CONTENTS
 *   [CloverBootloader.md](#CloverBootloader)
 *   [Building.md](#Building)
 *   [Configuration.md](#Configuration)
