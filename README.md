@@ -1,4 +1,4 @@
-### Welcome to the CloverBootloader Documentation [Clover Documentation Site](https://cloverhackycolor.github.io/Clover-Documentaion/)
+### Welcome to the CloverBootloader Documentation [Clover Documentation Site](https://cloverhackycolor.github.io/Clover-Documentation/)
 -------------------------------
 - Credit App: [macgapproject](https://macgapproject.github.io/) Is under [LICENSE](https://github.com/CloverHackyColor/Clover-Documentaion/blob/main/LICENSE-MG)
 - Credit HTML Build: [Github Wikito Converter](https://github.com/yakivmospan/github-wikito-converter)
@@ -28,7 +28,7 @@ make
 
 </details>
 
-### Download Release App ➤ [Documentation_Clover.app](https://github.com/CloverHackyColor/Clover-Documentaion/releases/tag/V1)
+### Download Release App ➤ [Documentation_Clover.app](https://github.com/CloverHackyColor/Clover-Documentation/releases/tag/V1)
 
 -------------------------------
 <img align="centert" width=
@@ -67,25 +67,28 @@ Building
 
 ### macOS ⇩
 
-cd ~
-mkdir src
-cd src
-git clone \--recurse-submodule https://github.com/CloverHackyColor/CloverBootloader.git
-cd CloverBootloader
+```bash
+mkdir -p $HOME/src && cd $HOME/src
+git clone -q https://github.com/CloverHackyColor/CloverBootloader
+cd CloverBootloader && git submodule update --init --recursive
+cd OpenCorePkg && git checkout master && git pull
+cd ..
 ./buildme
+```
 
 ### Ubuntu 19.10 ⇩
 
+```bash
 sudo apt install build-essential nasm uuid-dev genisoimage
 cd ~/Desktop/
 git clone \--recurse https://github.com/CloverHackyColor/CloverBootloader.git
 cd CloverBootloader
 ../edksetup.sh
 ./ebuild.sh -fr
-
+```
 * * *
 
-[Back on top ↑](https://github.com/CloverHackyColor/Clover-Documentaion?tab=readme-ov-file#welcome-to-the-cloverbootloader-documentation-clover-documentation-site)
+[Back on top ↑](https://github.com/CloverHackyColor/Clover-Documentation?tab=readme-ov-file#welcome-to-the-cloverbootloader-documentation-clover-documentation-site)
 
 Configuration
 =============
@@ -2834,7 +2837,7 @@ Included ➢ [Quirks](https://github.com/CloverHackyColor/CloverBootloader/wiki/
 
 * * *
 
-[Back on top ↑](https://github.com/CloverHackyColor/Clover-Documentaion?tab=readme-ov-file#welcome-to-the-cloverbootloader-documentation-clover-documentation-site)
+[Back on top ↑](https://github.com/CloverHackyColor/Clover-Documentation?tab=readme-ov-file#welcome-to-the-cloverbootloader-documentation-clover-documentation-site)
 
 Design
 ======
@@ -3357,7 +3360,7 @@ Three big news with SVG support:
 
 * * *
 
-[Back on top ↑](https://github.com/CloverHackyColor/Clover-Documentaion?tab=readme-ov-file#welcome-to-the-cloverbootloader-documentation-clover-documentation-site)
+[Back on top ↑](https://github.com/CloverHackyColor/Clover-Documentation?tab=readme-ov-file#welcome-to-the-cloverbootloader-documentation-clover-documentation-site)
 
 Fixing-DSDT
 ===========
@@ -3606,7 +3609,7 @@ You may make patched DSDT once with full mask. Then correct patched DSDT manuall
 
 * * *
 
-[Back on top ↑](https://github.com/CloverHackyColor/Clover-Documentaion?tab=readme-ov-file#welcome-to-the-cloverbootloader-documentation-clover-documentation-site)
+[Back on top ↑](https://github.com/CloverHackyColor/Clover-Documentation?tab=readme-ov-file#welcome-to-the-cloverbootloader-documentation-clover-documentation-site)
 
 Installing
 ==========
@@ -3675,7 +3678,7 @@ More options about bcfg command you may see by the command
 
 * * *
 
-[Back on top ↑](https://github.com/CloverHackyColor/Clover-Documentaion?tab=readme-ov-file#welcome-to-the-cloverbootloader-documentation-clover-documentation-site)
+[Back on top ↑](https://github.com/CloverHackyColor/Clover-Documentation?tab=readme-ov-file#welcome-to-the-cloverbootloader-documentation-clover-documentation-site)
 
 Native-speedstep
 ================
@@ -3760,7 +3763,7 @@ It is recommended to delete this section to allow power control through P-States
 
 * * *
 
-[Back on top ↑](https://github.com/CloverHackyColor/Clover-Documentaion?tab=readme-ov-file#welcome-to-the-cloverbootloader-documentation-clover-documentation-site)
+[Back on top ↑](https://github.com/CloverHackyColor/Clover-Documentation?tab=readme-ov-file#welcome-to-the-cloverbootloader-documentation-clover-documentation-site)
 
 OC-integration
 ==============
@@ -3968,4 +3971,4 @@ Clover's tasks
 9.  One more small thing: DUET and EDK2 sources are written universally to match different hardware but the hardware dependency itself depends on constants. This implies a compilation process for one specific platform. Clover aims to be universal and to provide an automatic platform detection.
 * * *
 
-[Back on top ↑](https://github.com/CloverHackyColor/Clover-Documentaion?tab=readme-ov-file#welcome-to-the-cloverbootloader-documentation-clover-documentation-site)
+[Back on top ↑](https://github.com/CloverHackyColor/Clover-Documentation?tab=readme-ov-file#welcome-to-the-cloverbootloader-documentation-clover-documentation-site)
