@@ -3621,7 +3621,7 @@ Each Clover revision contains file Clover\*\*\*.pkg which is macOS executable in
 
 If you want to make this manually then read carefully.
 
-Install for legacy boot
+Install for legacy boot --> [Clover-LegacyDuet](https://github.com/CloverHackyColor/Clover-LegacyDuet)
 -----------------------
 
 When you power on your computer you see BIOS which want to start some operating system. Old computers (legacy computers) have legacy BIOS which is able to boot some drive HDD, CDROM or USB-HDD. The BIOS read first sector (MBR) from the physical drive into memory and start is as a program written in 16bit codes. The program is less then 512 byte. It named boot0 boot sector. The program boot0 searches the partition table of the drive, finds first partition position (PBR) on the drive and reads there first one or two sectors named boot1. Start the program. The program PBR intended to use on the specific file-system. So use boot1hfs on HFS+ filesystem, use boot1f32 on FAT32 filesystem, boot1ex on exFAT file system and more. After years of investigations we decided to choose one case: drive must be formatted to GPT and have first partition EFI formatted to FAT32. Partition signature will be EF00. We have several variants but recommended one is **boot0af** It can be installed from macOS by command
