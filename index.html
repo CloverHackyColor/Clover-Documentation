@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Documentation Clover</title>
+    <body style="background-color:#D3D3D3;">
     <style>/*!
  * Bootstrap v3.4.1 (https://getbootstrap.com/)
  * Copyright 2011-2019 Twitter, Inc.
@@ -3062,7 +3063,7 @@ To make sure the currently patched DSDT is not creating a conflict, you can chan
 <p>Each Clover revision contains file Clover***.pkg which is macOS executable installer to make all work automatically.
 <img src="https://user-images.githubusercontent.com/485515/167265123-033556f5-80a4-4ecc-a1a8-8949e745d950.png" /></p>
 <p>If you want to make this manually then read carefully.</p>
-<h2 id="install-for-legacy-boot">Install for legacy boot</h2>
+<h2 id="install-for-legacy-boot">Install for legacy boot --> <a href="https://github.com/CloverHackyColor/Clover-LegacyDuet">Clover-LegacyDuet</a></h2>
 <p>When you power on your computer you see BIOS which want to start some operating system. Old computers (legacy computers) have legacy BIOS which is able to boot some drive HDD, CDROM or USB-HDD.
 The BIOS read first sector (MBR) from the physical drive into memory and start is as a program written in 16bit codes. The program is less then 512 byte. It named boot0 boot sector.
 The program boot0 searches the partition table of the drive, finds first partition position (PBR) on the drive and reads there first one or two sectors named boot1. Start the program.
