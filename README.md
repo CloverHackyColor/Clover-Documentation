@@ -17,8 +17,10 @@ git clone https://github.com/CloverHackyColor/Clover-Documentaion.git && cd $HOM
 ### Download Release App ➤ [Documentation_Clover.app](https://github.com/CloverHackyColor/Clover-Documentation/releases/tag/V1)
 
 -------------------------------
-<img align="centert" width=
-    "150" height="150" src="https://user-images.githubusercontent.com/6248794/164569238-e9372ecc-1534-4dda-a39b-fb86304ea7a5.png">
+
+<img width="150" height="150" alt="icon_256x256" src="https://github.com/user-attachments/assets/f7088e26-5751-4b09-a6b2-14c4315e7c02" />
+
+    
 ### TABLE OF CONTENTS
 *   [CloverBootloader.md](#CloverBootloader)
 *   [Building.md](#Building)
