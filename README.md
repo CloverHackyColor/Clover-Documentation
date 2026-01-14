@@ -3,7 +3,7 @@
 - Credit App: [macgapproject](https://macgapproject.github.io/) Is under [LICENSE](https://github.com/CloverHackyColor/Clover-Documentaion/blob/main/LICENSE-MG)
 - Credit HTML Build: [Github Wikito Converter](https://github.com/yakivmospan/github-wikito-converter)
 - Credit PDF Build: [wkhtmltopdf](https://github.com/wkhtmltopdf/wkhtmltopdf)
-- 
+
 #### ⬇︎ Build App: View Spoiler
 <details> 
   <summary>Spoiler Build App</summary>
