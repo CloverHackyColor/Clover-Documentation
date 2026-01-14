@@ -4,29 +4,15 @@
 - Credit HTML Build: [Github Wikito Converter](https://github.com/yakivmospan/github-wikito-converter)
 - Credit PDF Build: [wkhtmltopdf](https://github.com/wkhtmltopdf/wkhtmltopdf)
 
-#### ⬇︎ Build App: View Spoiler
-<details> 
-  <summary>Spoiler Build App</summary>
-
-  
 #### Build App: Prerequisite: `Xcode` installed
  Command Line Tools (CLT) f
  or Xcode (from `xcode-select --install` or [Developer Apple Command Line Tools](https://developer.apple.com/download/all/)
 ### Build project from command in macOS
 
-#### Clone the repository
+#### Clone and build the repository
 ```bash
-
-git clone https://github.com/CloverHackyColor/Clover-Documentaion.git
-cd $HOME/Clover-Documentaion
+git clone https://github.com/CloverHackyColor/Clover-Documentaion.git && cd $HOME/Clover-Documentaion && make
 ```
-
-#### Build
-```bash
-make
-```
-
-</details>
 
 ### Download Release App ➤ [Documentation_Clover.app](https://github.com/CloverHackyColor/Clover-Documentation/releases/tag/V1)
 
