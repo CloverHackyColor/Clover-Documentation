@@ -7,7 +7,7 @@
 #### Build App: Prerequisite: `Xcode` installed
  Command Line Tools (CLT) f
  or Xcode (from `xcode-select --install` or [Developer Apple Command Line Tools](https://developer.apple.com/download/all/)
-### Build project from command in macOS
+### Build project from command in macOS ⬇︎
 
 #### Clone and build the repository
 ```bash
