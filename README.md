@@ -3621,6 +3621,8 @@ drive must be formatted to GPT and have first partition EFI formatted to FAT32. 
 We have several variants but recommended one is **boot0af**
 It can be installed from macOS by command.
 
+### Command for an HFS+J volume
+
 #### Make sur you have the complete folder `CloverV2` from here -> [CloverV2](https://github.com/CloverHackyColor/CloverBootloader/releases/download/5172/CloverV2-5172.zip)
 
 You need to copy folder `x64` from `Bootloaders` folder in folder `BootSectors`
@@ -3633,7 +3635,7 @@ You need to copy folder `x64` from `Bootloaders` folder in folder `BootSectors`
 
 `sudo fdisk -f boot0af -u -y /dev/rdisk0`
 
-`sudo dd if=boot1h2 of=/dev/rdisk0`
+`sudo dd if=boot1h2 of=/dev/rdisk0s2`
 
 `cp /CloverV2/BootSectors/x64/boot6 /Volumes/USB/boot`
 
