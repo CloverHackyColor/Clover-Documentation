@@ -693,7 +693,7 @@ if("undefined"==typeof jQuery)throw new Error("Bootstrap's JavaScript requires j
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand doc-title" href="#page-top">Documentation Clover </a>
+          <a class="navbar-brand doc-title" href="#page-top">Clover-Documentation</a><a class="navbar-brand doc-title" href="https://github.com/CloverHackyColor/CloverBootloader">Clover Github </a><a class="navbar-brand doc-title" href="https://github.com/CloverHackyColor/Clover-Documentation">Clover Documentation </a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
@@ -718,7 +718,7 @@ if("undefined"==typeof jQuery)throw new Error("Bootstrap's JavaScript requires j
 <p class="page" id="CloverBootloader"></p><h1></h1>
 <p align="left">
 
-<img width="250" alt="1" src="https://user-images.githubusercontent.com/6248794/164569238-e9372ecc-1534-4dda-a39b-fb86304ea7a5.png">
+<img width="250" alt="1" src="https://github.com/user-attachments/assets/f7088e26-5751-4b09-a6b2-14c4315e7c02">
 
 </p>
 
@@ -3063,7 +3063,7 @@ To make sure the currently patched DSDT is not creating a conflict, you can chan
 <p>Each Clover revision contains file Clover***.pkg which is macOS executable installer to make all work automatically.
 <img src="https://user-images.githubusercontent.com/485515/167265123-033556f5-80a4-4ecc-a1a8-8949e745d950.png" /></p>
 <p>If you want to make this manually then read carefully.</p>
-<h2 id="install-for-legacy-boot">Install for legacy boot --> <a href="https://github.com/CloverHackyColor/Clover-LegacyDuet">Clover-LegacyDuet</a></h2>
+
 <p>When you power on your computer you see BIOS which want to start some operating system. Old computers (legacy computers) have legacy BIOS which is able to boot some drive HDD, CDROM or USB-HDD.
 The BIOS read first sector (MBR) from the physical drive into memory and start is as a program written in 16bit codes. The program is less then 512 byte. It named boot0 boot sector.
 The program boot0 searches the partition table of the drive, finds first partition position (PBR) on the drive and reads there first one or two sectors named boot1. Start the program.
@@ -3072,7 +3072,23 @@ After years of investigations we decided to choose one case:
 drive must be formatted to GPT and have first partition EFI formatted to FAT32. Partition signature will be EF00.
 We have several variants but recommended one is <strong>boot0af</strong>
 It can be installed from macOS by command</p>
-<p><code>sudo fdisk440 -f boot0 -u -y /dev/rdisk0</code></p>
+
+<p>Make sur you have the complete folder `CloverV2` from here -> <a href="https://github.com/CloverHackyColor/CloverBootloader/releases/download/5172/CloverV2-5172.zip">CloverV2</a></p>
+<p>You need to copy folder `x64` from `Bootloaders` folder in folder `BootSectors`</p>
+
+<p>This is what it should look like</p>
+<img src="https://github.com/user-attachments/assets/38e2685c-24e1-4172-856f-b47d21fe7190" /></p>
+
+<p><code>cd /CloverV2/BootSectors</code></p>
+<p><code>sudo fdisk -f boot0af -u -y /dev/rdisk0</code></p>
+<p><code>sudo dd if=boot1h2 of=/dev/rdisk0</code></p>
+<p><code>cp /CloverV2/BootSectors/x64/boot6 /Volumes/USB/boot</code></p>
+<p><code>cp EFI (Your EFI) -> /Volumes/USB</code></p>
+<p>Note: disk0 is an example, as is /Volumes/USB</p>
+<img src="https://github.com/user-attachments/assets/2931aa25-a14f-43d4-b560-b14c7a9cca20" /></p>
+
+<p>--------------------------------------------------------------------------------------------------------------------------------</p>
+
 <p>or by </p>
 <pre class="hljs">dd <span class="hljs-attribute">if</span>=/dev/rdisk0 <span class="hljs-attribute">count</span>=1 <span class="hljs-attribute">bs</span>=512 <span class="hljs-attribute">of</span>=origMBR
 cp origMBR newMBR
