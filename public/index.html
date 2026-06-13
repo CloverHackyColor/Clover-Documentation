@@ -3073,22 +3073,27 @@ drive must be formatted to GPT and have first partition EFI formatted to FAT32. 
 We have several variants but recommended one is <strong>boot0af</strong>
 It can be installed from macOS by command</p>
 
-<p>Command for an HFS+J Volume</p>
-
-<p>Make sur you have the complete folder `CloverV2` from here -> <a href="https://github.com/CloverHackyColor/CloverBootloader/releases/download/5172/CloverV2-5172.zip">CloverV2</a></p>
-<p>You need to copy folder `x64` from `Bootloaders` folder in folder `BootSectors`</p>
-
-<p>This is what it should look like</p>
-<img src="https://github.com/user-attachments/assets/38e2685c-24e1-4172-856f-b47d21fe7190" /></p>
-
-<p><code>cd /CloverV2/BootSectors</code></p>
-<p><code>sudo fdisk -f boot0af -u -y /dev/rdisk0</code></p>
-<p><code>sudo dd if=boot1h2 of=/dev/rdisk0s2</code></p>
-<p><code>cp /CloverV2/BootSectors/x64/boot6 /Volumes/USB/boot</code></p>
-<p><code>cp EFI (Your EFI) -> /Volumes/USB</code></p>
-<p>Note: disk0 is an example, as is /Volumes/USB</p>
-<img src="https://github.com/user-attachments/assets/2931aa25-a14f-43d4-b560-b14c7a9cca20" /></p>
-
+<h2 id="command-for-an-hfs-j-volume">Command for an HFS+J Volume</h2>
+<h4 id="make-sur-you-have-the-complete-folder-cloverv2-from-here-cloverv2">Make sur you have the complete folder <code>CloverV2</code> from here -&gt; <a href="https://github.com/CloverHackyColor/CloverBootloader/releases/download/5172/CloverV2-5172.zip">CloverV2</a></h4>
+<p>You need to copy folder <code>x64</code> from <code>Bootloaders</code> folder in folder <code>BootSectors</code></p>
+<h3 id="this-is-what-it-should-look-like">This is what it should look like</h3>
+<p><img width="731" height="399" alt="Screenshot 2026-06-10 at 9 18 48 PM" src="https://github.com/user-attachments/assets/38e2685c-24e1-4172-856f-b47d21fe7190" /></p>
+<h3 id="first-command-">First Command ⬇︎</h3>
+<p><code>diskutil list</code></p>
+<p><img width="629" height="497" alt="Screenshot 2026-06-13 at 6 54 46 PM" src="https://github.com/user-attachments/assets/3ad484f1-08c8-4c5c-9d05-57e4ca60374e" /></p>
+<h3 id="bootloader-command-">Bootloader Command ⬇︎</h3>
+<pre class="hljs"><span class="hljs-attribute">cd</span> /CloverV<span class="hljs-number">2</span>/BootSectors
+<span class="hljs-attribute">sudo</span> fdisk -f boot<span class="hljs-number">0</span>af -u -y /dev/rdisk<span class="hljs-number">9</span>
+<span class="hljs-attribute">sudo</span> dd if=boot<span class="hljs-number">1</span>h<span class="hljs-number">2</span> of=/dev/rdisk<span class="hljs-number">9</span>s<span class="hljs-number">2</span></pre><ul>
+<li>Mount EFI partition /dev/disk9s1 (Volumes/USB) with any EFI Mounter tool<h4 id="copy-cloverv2-bootsectors-x64-boot6-to-volumes-efi">Copy /CloverV2/BootSectors/x64/<code>boot6</code> to /Volumes/EFI</h4>
+</li>
+<li>Rename boot6 to boot</li>
+</ul>
+<h4 id="copy-efi-your-efi-volumes-install-macos-tahoe">Copy EFI (Your EFI) -&gt; /Volumes/Install macOS Tahoe</h4>
+<h3 id="this-is-what-it-should-look-like">This is what it should look like</h3>
+<p><img width="929" height="449" alt="Screenshot 2026-06-13 at 7 02 47 PM" src="https://github.com/user-attachments/assets/ed7d210e-c6de-443b-aa86-ecfbfc4cf49e" /></p>
+<p>Note: disk9 is an example, as is /Volumes/Install macOS Tahoe</p>
+<hr>
 <p>--------------------------------------------------------------------------------------------------------------------------------</p>
 
 <p>or by </p>
