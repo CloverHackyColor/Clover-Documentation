@@ -3608,13 +3608,43 @@ Each Clover revision contains file Clover\*\*\*.pkg which is macOS executable in
 
 If you want to make this manually then read carefully.
 
-Install for legacy boot --> [Clover-LegacyDuet](https://github.com/CloverHackyColor/Clover-LegacyDuet)
 -----------------------
 
-When you power on your computer you see BIOS which want to start some operating system. Old computers (legacy computers) have legacy BIOS which is able to boot some drive HDD, CDROM or USB-HDD. The BIOS read first sector (MBR) from the physical drive into memory and start is as a program written in 16bit codes. The program is less then 512 byte. It named boot0 boot sector. The program boot0 searches the partition table of the drive, finds first partition position (PBR) on the drive and reads there first one or two sectors named boot1. Start the program. The program PBR intended to use on the specific file-system. So use boot1hfs on HFS+ filesystem, use boot1f32 on FAT32 filesystem, boot1ex on exFAT file system and more. After years of investigations we decided to choose one case: drive must be formatted to GPT and have first partition EFI formatted to FAT32. Partition signature will be EF00. We have several variants but recommended one is **boot0af** It can be installed from macOS by command
+## Install for legacy boot
 
-`sudo fdisk440 -f boot0 -u -y /dev/rdisk0`
+When you power on your computer you see BIOS which want to start some operating system. Old computers (legacy computers) have legacy BIOS which is able to boot some drive HDD, CDROM or USB-HDD.
+The BIOS read first sector (MBR) from the physical drive into memory and start is as a program written in 16bit codes. The program is less then 512 byte. It named boot0 boot sector.
+The program boot0 searches the partition table of the drive, finds first partition position (PBR) on the drive and reads there first one or two sectors named boot1. Start the program.
+The program PBR intended to use on the specific file-system. So use boot1hfs on HFS+ filesystem, use boot1f32 on FAT32 filesystem, boot1ex on exFAT file system and more.
+After years of investigations we decided to choose one case:
+drive must be formatted to GPT and have first partition EFI formatted to FAT32. Partition signature will be EF00.
+We have several variants but recommended one is **boot0af**
+It can be installed from macOS by command.
 
+#### Make sur you have the complete folder `CloverV2` from here -> [CloverV2](https://github.com/CloverHackyColor/CloverBootloader/releases/download/5172/CloverV2-5172.zip)
+
+You need to copy folder `x64` from `Bootloaders` folder in folder `BootSectors`
+
+### This is what it should look like
+
+<img width="731" height="399" alt="Screenshot 2026-06-10 at 9 18 48 PM" src="https://github.com/user-attachments/assets/38e2685c-24e1-4172-856f-b47d21fe7190" />
+
+`cd /CloverV2/BootSectors`
+
+`sudo fdisk -f boot0af -u -y /dev/rdisk0`
+
+`sudo dd if=boot1h2 of=/dev/rdisk0`
+
+`cp /CloverV2/BootSectors/x64/boot6 /Volumes/USB/boot`
+
+`cp EFI (Your EFI) -> /Volumes/USB`
+
+Note: disk0 is an example, as is /Volumes/USB
+
+<img width="731" height="423" alt="Screenshot 2026-06-10 at 9 46 50 PM" src="https://github.com/user-attachments/assets/2931aa25-a14f-43d4-b560-b14c7a9cca20" />
+
+
+----------------------------------------
 or by
 
 dd if\=/dev/rdisk0 count\=1 bs\=512 of\=origMBR
