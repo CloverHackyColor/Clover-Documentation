@@ -3063,7 +3063,7 @@ To make sure the currently patched DSDT is not creating a conflict, you can chan
 <p>Each Clover revision contains file Clover***.pkg which is macOS executable installer to make all work automatically.
 <img src="https://user-images.githubusercontent.com/485515/167265123-033556f5-80a4-4ecc-a1a8-8949e745d950.png" /></p>
 <p>If you want to make this manually then read carefully.</p>
-
+<h2 id="install-for-legacy-boot">Install for legacy boot --> <a href="https://github.com/CloverHackyColor/Clover-LegacyDuet">Clover-LegacyDuet</a></h2>
 <p>When you power on your computer you see BIOS which want to start some operating system. Old computers (legacy computers) have legacy BIOS which is able to boot some drive HDD, CDROM or USB-HDD.
 The BIOS read first sector (MBR) from the physical drive into memory and start is as a program written in 16bit codes. The program is less then 512 byte. It named boot0 boot sector.
 The program boot0 searches the partition table of the drive, finds first partition position (PBR) on the drive and reads there first one or two sectors named boot1. Start the program.
@@ -3072,30 +3072,7 @@ After years of investigations we decided to choose one case:
 drive must be formatted to GPT and have first partition EFI formatted to FAT32. Partition signature will be EF00.
 We have several variants but recommended one is <strong>boot0af</strong>
 It can be installed from macOS by command</p>
-
-<h2 id="command-for-an-hfs-j-volume">Command for an HFS+J Volume</h2>
-<h4 id="make-sur-you-have-the-complete-folder-cloverv2-from-here-cloverv2">Make sur you have the complete folder <code>CloverV2</code> from here -&gt; <a href="https://github.com/CloverHackyColor/CloverBootloader/releases/download/5172/CloverV2-5172.zip">CloverV2</a></h4>
-<p>You need to copy folder <code>x64</code> from <code>Bootloaders</code> folder in folder <code>BootSectors</code></p>
-<h3 id="this-is-what-it-should-look-like">This is what it should look like</h3>
-<p><img width="731" height="399" alt="Screenshot 2026-06-10 at 9 18 48 PM" src="https://github.com/user-attachments/assets/38e2685c-24e1-4172-856f-b47d21fe7190" /></p>
-<h3 id="first-command-">First Command ⬇︎</h3>
-<p><code>diskutil list</code></p>
-<p><img width="629" height="497" alt="Screenshot 2026-06-13 at 6 54 46 PM" src="https://github.com/user-attachments/assets/3ad484f1-08c8-4c5c-9d05-57e4ca60374e" /></p>
-<h3 id="bootloader-command-">Bootloader Command ⬇︎</h3>
-<pre class="hljs"><span class="hljs-attribute">cd</span> /CloverV<span class="hljs-number">2</span>/BootSectors
-<span class="hljs-attribute">sudo</span> fdisk -f boot<span class="hljs-number">0</span>af -u -y /dev/rdisk<span class="hljs-number">9</span>
-<span class="hljs-attribute">sudo</span> dd if=boot<span class="hljs-number">1</span>h<span class="hljs-number">2</span> of=/dev/rdisk<span class="hljs-number">9</span>s<span class="hljs-number">2</span></pre><ul>
-<li>Mount EFI partition /dev/disk9s1 (Volumes/USB) with any EFI Mounter tool<h4 id="copy-cloverv2-bootsectors-x64-boot6-to-volumes-efi">Copy /CloverV2/BootSectors/x64/<code>boot6</code> to /Volumes/EFI</h4>
-</li>
-<li>Rename boot6 to boot</li>
-</ul>
-<h4 id="copy-efi-your-efi-volumes-install-macos-tahoe">Copy EFI (Your EFI) -&gt; /Volumes/Install macOS Tahoe</h4>
-<h3 id="this-is-what-it-should-look-like">This is what it should look like</h3>
-<p><img width="929" height="449" alt="Screenshot 2026-06-13 at 7 02 47 PM" src="https://github.com/user-attachments/assets/ed7d210e-c6de-443b-aa86-ecfbfc4cf49e" /></p>
-<p>Note: disk9 is an example, as is /Volumes/Install macOS Tahoe</p>
-<hr>
-<p>--------------------------------------------------------------------------------------------------------------------------------</p>
-
+<p><code>sudo fdisk440 -f boot0 -u -y /dev/rdisk0</code></p>
 <p>or by </p>
 <pre class="hljs">dd <span class="hljs-attribute">if</span>=/dev/rdisk0 <span class="hljs-attribute">count</span>=1 <span class="hljs-attribute">bs</span>=512 <span class="hljs-attribute">of</span>=origMBR
 cp origMBR newMBR
