@@ -1,21 +1,5 @@
 ### Welcome to the CloverBootloader Documentation [Clover Documentation Site](https://cloverhackycolor.github.io/Clover-Documentation/)
 -------------------------------
-- Credit App: [macgapproject](https://macgapproject.github.io/) Is under [LICENSE](https://github.com/CloverHackyColor/Clover-Documentaion/blob/main/LICENSE-MG)
-- Credit HTML Build: [Github Wikito Converter](https://github.com/yakivmospan/github-wikito-converter)
-
-#### Build App: Prerequisite: `Xcode` installed
- Command Line Tools (CLT) f
- or Xcode (from `xcode-select --install` or [Developer Apple Command Line Tools](https://developer.apple.com/download/all/)
-### Build project from command in macOS ⬇︎
-
-#### Clone and build the repository
-```bash
-git clone https://github.com/CloverHackyColor/Clover-Documentaion.git && cd $HOME/Clover-Documentaion && make
-```
-
-### Download Release App ➤ [Documentation_Clover.app](https://github.com/CloverHackyColor/Clover-Documentation/releases/tag/V1)
-
--------------------------------
 
 <img width="150" height="150" alt="icon_256x256" src="https://github.com/user-attachments/assets/f7088e26-5751-4b09-a6b2-14c4315e7c02" />
 
@@ -2847,7 +2831,9 @@ Some themes are currently bundled with the installer package. You can install th
 
 Note: At some point in the future, themes will no longer be included in the installer and instead Clover will be shipped with a single embedded theme (which it already has).
 
-You can now get themes from the new [Clover Theme Repository](https://github.com/CloverHackyColor/CloverThemes) by either downloading them manually using the Terminal. or [DownGit](https://chris1111.github.io/DownGit/#/home)
+You can now get themes from the new [Clover Theme Repository](https://github.com/CloverHackyColor/CloverThemes) 
+
+By either downloading them from [CloverThemes-Gallery](https://cloverhackycolor.github.io/CloverThemes-Gallery/)
 
 * * *
 
