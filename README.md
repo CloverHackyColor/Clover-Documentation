@@ -2847,7 +2847,9 @@ Some themes are currently bundled with the installer package. You can install th
 
 Note: At some point in the future, themes will no longer be included in the installer and instead Clover will be shipped with a single embedded theme (which it already has).
 
-You can now get themes from the new [Clover Theme Repository](https://github.com/CloverHackyColor/CloverThemes) by either downloading them manually using the Terminal. or [DownGit](https://chris1111.github.io/DownGit/#/home)
+You can now get themes from the new [Clover Theme Repository](https://github.com/CloverHackyColor/CloverThemes) 
+
+By either downloading them from [CloverThemes-Gallery](https://cloverhackycolor.github.io/CloverThemes-Gallery/)
 
 * * *
 
