@@ -1,3 +1,4 @@
+[![pages-build-deployment](https://github.com/CloverHackyColor/Clover-Documentation/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/CloverHackyColor/Clover-Documentation/actions/workflows/pages/pages-build-deployment) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/CloverHackyColor/Clover-Documentation/blob/main/LICENSE)
 ### Welcome to the CloverBootloader Documentation [Clover Documentation Site](https://cloverhackycolor.github.io/Clover-Documentation/)
 -------------------------------
 
