@@ -1,7 +1,7 @@
 ### Welcome to the CloverBootloader Documentation [Clover Documentation Site](https://cloverhackycolor.github.io/Clover-Documentation/)
 -------------------------------
 
-<img width="150" height="150" alt="icon_256x256" src="https://github.com/user-attachments/assets/f7088e26-5751-4b09-a6b2-14c4315e7c02" />
+<img src="https://github.com/user-attachments/assets/f7088e26-5751-4b09-a6b2-14c4315e7c02" />
 
     
 ### TABLE OF CONTENTS
