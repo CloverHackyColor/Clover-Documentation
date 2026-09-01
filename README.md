@@ -10,6 +10,7 @@
 *   [Building.md](#Building)
 *   [Configuration.md](#Configuration)
 *   [Design.md](#Design)
+*   [Emulate-NVRAM.md](#Emulate-NVRAM)
 *   [Fixing-DSDT.md](#Fixing-DSDT)
 *   [Installing.md](#Installing)
 *   [Native-speedstep.md](#Native-speedstep)
@@ -3335,6 +3336,536 @@ Three big news with SVG support:
 * * *
 
 [Back on top ↑](https://github.com/CloverHackyColor/Clover-Documentation?tab=readme-ov-file#welcome-to-the-cloverbootloader-documentation-clover-documentation-site)
+
+Emulate-NVRAM
+===========
+<!DOCTYPE README-markdown>
+<!--
+  ═══════════════════════════════════════════════════════════════════
+   CLOVERLOGOUTHOOK — WIKI README (CloverHackyColor/CloverBootloader)
+  ═══════════════════════════════════════════════════════════════════
+-->
+
+
+<div align="center">
+  
+![Version](https://img.shields.io/badge/version-1.6.2-success) ![Validated](https://img.shields.io/badge/validated-10.6%20%E2%86%92%2026-gold) ![Dependencies](https://img.shields.io/badge/dependencies-zero-brightgreen) ![License](https://img.shields.io/badge/license-GPL--V3-blue) ![Edition](https://img.shields.io/badge/edition-🍀-important)
+
+<img src="https://github.com/user-attachments/assets/0997ffe1-bcb3-4f21-b838-1da601274ad8" width="128" alt="Clover Logo"/>
+
+# CloverLogoutHook
+
+### Persistent NVRAM for Clover Legacy Boot
+
+*Replacement for the classic Clover RC scripts. Keeps your Startup Disk choice alive across reboots, shutdowns, and bootloader overrides.*
+
+**➡️ View Page [CloverLogoutHook](https://htmlpreview.github.io/?https://github.com/CloverHackyColor/CloverBootloader/blob/master/CloverPackage/CloverLogoutHook/index.html)**
+
+*Legacy BIOS · APFS + HFS+ · Multi-disk*
+
+</div>
+
+---
+
+## 📑 Contents
+
+1. [Overview](#overview)
+2. [Architecture](#architecture)
+3. [The Sticky-Anchor Pattern](#the-sticky-anchor-pattern)
+4. [ESP Mount Strategy](#esp-mount-strategy)
+5. [Boot-Volume Resolution](#boot-volume-resolution)
+6. [Self-Healing Pass](#self-healing-pass)
+7. [Boot-Args Control v1.5+](#boot-args-control-v15)
+8. [Shutdown Flush](#shutdown-flush)
+9. [Command Surface](#command-surface)
+10. [Usage](#usage)
+11. [Support & Troubleshooting](#support--troubleshooting)
+12. [Filesystem Footprint](#filesystem-footprint)
+13. [macOS Compatibility](#macos-compatibility)
+14. [Zero Dependencies Statement](#zero-dependencies-statement)
+15. [Performance & System Impact](#performance--system-impact)
+16. [Credits](#credits)
+
+---
+
+## Overview
+
+`CloverLogoutHook` is a **script + system-level LaunchDaemon** used to emulate non-volatile random-access memory (NVRAM) on systems where native NVRAM is broken, non-functional, or loses its data upon shutdown. It keeps your **Startup Disk choice alive** across reboots, shutdowns, and bootloader overrides on Hackintosh systems running **Clover Legacy Boot**.
+
+- **Cold boot** — shutdown ❄️ → power on
+- **Warm restart** — menu  → Restart 🔄
+- **GUI override** — picking a different volume in Clover's boot picker (one-shot, sticky choice resumes)
+
+> It replaces the *deprecated Clover RC scripts* (broken since macOS 13 Ventura) with **zero external dependencies**.
+
+> 🆕 **v1.4 highlights:** HFS+ boot support (the daemon now runs on Mavericks-era systems), multi-disk internal discovery, full `uninstall` cleanup, and its own state folder `/Library/Logs/CloverHook`.
+
+### 📎 What you need *(Mandatory)* ⬇︎
+
+1. Check `EmuVariableUefi.efi` exists in → `/EFI/CLOVER/drivers/BIOS/` — Legacy boots never load `drivers/UEFI/`
+
+2. For Big Sur 11 and above you will need in `/EFI/CLOVER/config.plist` Boot/Arguments → `amfi=0x80`
+
+3. Check `EmuVariableUefi.efi`, `OpenRuntime.efi` exists in → `/EFI/CLOVER/drivers/BIOS/` — Legacy boots never load `drivers/UEFI/`
+
+4. Again for Big Sur 11 and above you will need in `/EFI/CLOVER/config.plist` RtVariables/CsrActiveConfig → `0x803` and RtVariables/BooterConfig → `0x28`
+
+---
+
+## Architecture
+
+    ┌─────────────────────────────────────────────────────────────────────┐
+    │                         macOS KERNEL SPACE                          │
+    │                                                                     │
+    │   NVRAM (emulated by EmuVariableUefi.efi — lives in RAM)            │
+    │                                                                     │
+    │   Key example:  efi-boot-device = <GUID path string>                │
+    │   Written by:   Startup Disk prefpane / bless                       │
+    │   Consumed by:  macOS after each boot (keys vanish from live RAM)   │
+    └────────────────────────────┬────────────────────────────────────────┘
+                                 │
+                                 │ every 2 seconds
+                                 ▼
+    ┌─────────────────────────────────────────────────────────────────────┐
+    │                    CloverLogoutHook daemon                          │
+    │              (root LaunchDaemon — user space)                       │
+    │                                                                     │
+    │  1. DUMP      : nvram -x -p → raw XML plist (tmp file)              │
+    │  2. COMPARE   : cmp vs last.xml baseline → no change? skip.         │
+    │  3. MERGE     : LIVE-WINS against sticky.xml anchor:                │
+    │                 • copy anchor → final                               │
+    │                 • PlistBuddy Delete every key present in live       │
+    │                 • PlistBuddy Merge live → final                     │
+    │                 Result: fresh values WIN; anchor re-adds only       │
+    │                 keys that macOS consumed (efi-boot-device*, …).     │
+    │  4. WRITE     : mount Clover volume (hidden, transient)             │
+    │                 → install → unmount                                 │
+    │  5. ANCHOR    : if final contains heal-keys → refresh sticky.xml    │
+    └────────────────────────────┬────────────────────────────────────────┘
+                                 │
+                                 │ at boot time
+                                 ▼
+    ┌─────────────────────────────────────────────────────────────────────┐
+    │                          CLOVER (firmware)                          │
+    │                                                                     │
+    │  EmuVariableUefi.efi reads /nvram.plist on the volume               │
+    │  → imports every key into emulated NVRAM RAM                        │
+    │  → boot-manager honors efi-boot-device → auto-selects volume        │
+    └─────────────────────────────────────────────────────────────────────┘
+
+---
+
+## The Sticky-Anchor Pattern
+
+The core innovation. A naive NVRAM-to-file dump has a fatal flaw on Hackintosh:
+
+> ⚠️ macOS **consumes** `efi-boot-device*` keys after reading them at boot — they vanish from live NVRAM within seconds of the OS starting. A pure mirror dump would progressively strip the file of exactly the keys needed for boot selection.
+
+### Three-file model
+
+| File | Role | Update rule |
+|---|---|---|
+| `last.xml` | Raw live NVRAM snapshot | Refreshed every cycle (baseline for `cmp`) |
+| `sticky.xml` | **Anchor** — superset containing heal keys | Refreshed **only** when final output contains any heal key |
+| `nvram.plist` *(on Clover volume)* | What Clover imports | Result of live-wins merge against anchor |
+
+### Live-wins merge algorithm
+
+    # PlistBuddy Merge does NOT overwrite existing keys.
+    # So: strip from anchor every key live provides, then merge live in.
+    cp anchor → final
+    for key in $(keys_in_live); do
+        PlistBuddy -c "Delete :${key}" final   # 2>/dev/null || true
+    done
+    PlistBuddy -c "Merge live.xml" final
+
+> ✅ **Property:** `final` is always a *superset* — fresh values from live overwrite old ones, and the anchor re-adds anything live has lost. Selecting **A→B→A→…** works indefinitely because the fresh live value always lands in the final file.
+
+---
+
+## ESP Mount Strategy
+
+The daemon never keeps a persistent mount and never interferes with user tools. The volume appears **nowhere on the desktop**, no Finder sidebar entry, no residual state.
+
+| Situation | Behavior |
+|---|---|
+| NVRAM unchanged *(typical cycle)* | **No mount at all** — zero disk activity |
+| Change detected, volume unmounted | `diskutil mount -nobrowse` → write → unmount (~1–2 s) |
+| Change detected, user already has the volume mounted | **Reuse user's mount** — never steal or eject |
+
+Mount point used for transient operations: `/private/var/.CloverEFI` (dot-prefixed → invisible to Finder).
+
+---
+
+## Boot-Volume Resolution
+
+Two worlds, one resolver:
+
+- **APFS boots** — `/` is a synthesized snapshot inside a synthesized container, backed by a physical store on a real disk. The script walks the whole chain to find the physical host disk.
+- **HFS+ boots (v1.4)** — no APFS layer exists; the boot disk *is* the root disk. Handled automatically.
+
+    root slice       : disk3s5s1       ← mount /
+    apfs container   : disk3           ← regex ^(disk[0-9]+)
+    physical store   : disk1s2         ← awk '/Physical Store/' in diskutil list disk3
+    host whole disk  : disk1           ← regex ^(disk[0-9]+)
+    esp identifier   : disk1s1         ← awk '/EFI/' in diskutil list disk1
+
+**v1.3+ multi-disk:** if the boot disk has no EFI-typed partition — or the mounted one lacks `EFI/CLOVER` — **all internal disks** are scanned (boot disk first) for an HFS+ volume hosting `EFI/CLOVER` (MBR disks, `boot1h` installs, old rigs). External/USB drives are never touched. On HFS+ Clover volumes, `nvram.plist` is written to the volume root — exactly where Legacy Clover reads it.
+
+*Only macOS built-ins: `mount`, `diskutil`, `awk`. No external interpreters.*
+
+---
+
+## Self-Healing Pass
+
+Two safety nets run against file corruption or external amputation:
+
+1. **At daemon start** (after every boot): a forced sync pass (`force=1`) rebuilds `nvram.plist` from `live ⊕ anchor`, bypassing the no-change fast path.
+2. **Every 60 s** (`VERIFY_EVERY=30` cycles × 2 s): if the on-volume file lacks any key present in the anchor, a forced rebuild is triggered automatically.
+
+---
+
+## Boot-Args Control (v1.5+)
+
+`boot-args` can be managed **from the terminal, without touching config.plist** — using the `setargs` command. The value is stored in the sticky anchor and the Clover file as **native EFI binary form** (`<data>`).
+
+> 🧪 **Experiment-proven:** Clover **merges** config.plist arguments with the NVRAM-file arguments at boot (config without `-v` + file with `-v` = verbose boot). The file injects flags the config does not have.
+
+### Set boot-args
+
+An example below ⬇
+
+    sudo ./CloverLogoutHook.command setargs "-lilubetaall alcid=11 keepsyms=1 amfi=0x80 revpatch=sbvmm -v"
+
+- Stored as `<data>` (round-trip verified before writing)
+- Live NVRAM mirror attempted (allowed on older macOS, refused on modern — expected)
+- Applied at next boot — **config.plist no longer needs to carry these flags**
+
+### Check the current sticky value
+
+    ./CloverLogoutHook.command diagnose
+
+    # shows, with its storage type:
+    sticky boot-args : -lilubetaall alcid=11 ... -v  [data/Clover-compatible]
+
+### Three ways to manage your args
+
+| Method | How | Best for |
+|---|---|---|
+| **config.plist** | Edit `Boot → Arguments` in Clover Configurator | The classic way — args always applied |
+| **setargs command** 🆕 | `sudo ... setargs "..."` | Terminal control, without touching config |
+| **Both** | They **merge** at boot | config = base args · file = extra/experimental flags |
+
+> ⚠️ **ClearNVRAM (F11) semantics:** if you F11 *while the daemon anchor exists*, the sticky file will restore the args on the next cycle (phoenix behavior). For a **clean slate**, uninstall the daemon first, then F11, then reinstall — exactly like the OC LogoutHook semantics.
+
+*Note: on modern macOS the live NVRAM write is refused by the kernel (expected) — persistence travels through the nvram.plist file, which Clover imports at every boot.*
+
+---
+
+## Shutdown Flush
+
+`launchd` sends `SIGTERM` at shutdown/restart; `Ctrl+C` sends `SIGINT`. The trap:
+
+    on_shutdown() {
+        sync_once 1 merge         # final flush; one retry if disks are being torn down
+        heal_live_vars 1
+        exit 0
+    }
+    trap on_shutdown TERM INT
+
+This captures the *very last* NVRAM state — e.g. a Startup Disk click made one second before shutdown — before the OS releases the disks.
+
+---
+
+## Command Surface
+
+| Command | sudo? | Purpose |
+|---|:---:|---|
+| `dump` *(default)* | ✓ | One-shot sync + heal |
+| `watch` | ✓ | Continuous daemon loop (used by LaunchDaemon) |
+| `install` | ✓ | Copy binary + install LaunchDaemon |
+| `uninstall` | ✓ | **Full cleanup:** daemon + binary + CloverHook folder |
+| `status` | - | Daemon state + file overview |
+| `setargs` | ✓ | boot-args can be managed |
+| `diagnose` | – | Full resolver trace + anchor health |
+| `clean` | ✓ | Wipe tmp files, snapshots, sticky anchor *(re-seed required after)* |
+| `prune` | ✓ | Rebuild file strictly from live (drops consumed keys) |
+| `version` | – | Print version banner |
+
+---
+
+## Usage
+
+### 1 — Install
+
+- Install the Clover Package with this specifics options
+
+![Option](https://github.com/user-attachments/assets/a97bf22d-94dc-4421-ac7d-429e77d6d782)
+
+- Replace the folder `drivers/BIOS` in `/EFI/CLOVER` by the one attached below. All the drivers necessary for a legacy configuration are present: [BIOS.zip](https://github.com/user-attachments/files/31648735/BIOS.zip)
+
+- Reboot your Hackintosh **before** using the command for installing CloverLogoutHook
+
+### INSTALL:
+
+    cd /Library/Application\ Support/CloverLogoutHook
+    chmod +x ./CloverLogoutHook.command
+    sudo ./CloverLogoutHook.command install
+
+### VERIFYING:
+
+    cd /Library/Application\ Support/CloverLogoutHook
+    ./CloverLogoutHook.command diagnose
+
+### Quick health check (always start here)
+
+    cd /Library/Application\ Support/CloverLogoutHook
+    ./CloverLogoutHook.command status
+    ./CloverLogoutHook.command diagnose
+    tail -30 /Library/Logs/CloverHook/nvramhook.log
+
+#### Note if you use Boot-Args Control: use sudo for diagnose
+
+    sudo ./CloverLogoutHook.command diagnose
+
+### Boot-Args Control: an example below ⬇︎
+
+    sudo ./CloverLogoutHook.command setargs "-lilubetaall alcid=11 keepsyms=1 amfi=0x80 revpatch=sbvmm -v"
+
+### UNINSTALL:
+
+    cd /Library/Application\ Support/CloverLogoutHook
+    sudo ./CloverLogoutHook.command uninstall
+
+### 2 — Seed the anchor (once)
+
+Open **System Preferences → Startup Disk**, select your volume, close the window. One click is all it takes — the daemon captures it within 2 seconds.
+
+### 3 — Verify
+
+    ./CloverLogoutHook.command diagnose
+
+    # expected:
+    esp identifier   : disk1s1
+    anchor has       : efi-boot-device       ✓
+    anchor has       : efi-boot-device-data  ✓
+
+### 4 — Done. Forever.
+
+The daemon now runs silently at every boot. No action is ever required again: pick any volume in **Startup Disk** — from any of your macOS installations — and the choice survives reboots, shutdowns, and Clover GUI overrides.
+
+### Multi-OS rigs
+
+Install the daemon on **every modern macOS you boot from** (v1.4 supports HFS+ boots — Mavericks and later each capture their own Startup Disk clicks). Older systems without the daemon (Snow Leopard…) are covered for *reading*: their boot choice is restored from the file written by the other installations.
+
+### Manual operations (rare)
+
+    ./CloverLogoutHook.command status                  # quick state overview
+    ./CloverLogoutHook.command diagnose                # resolver trace + anchor health
+    sudo ./CloverLogoutHook.command dump               # force a sync now
+    sudo ./CloverLogoutHook.command clean              # reset logs + anchor (re-seed after)
+    sudo ./CloverLogoutHook.command uninstall          # full removal
+
+---
+
+## Support & Troubleshooting
+
+### Quick health check (always start here)
+
+    ./CloverLogoutHook.command status
+    ./CloverLogoutHook.command diagnose
+    tail -30 /Library/Logs/CloverHook/nvramhook.log
+
+### Choice not honored after cold boot
+
+1. Check `EmuVariableUefi.efi` exists in `/EFI/CLOVER/drivers/BIOS/` — Legacy boots never load `drivers/UEFI/`.
+2. `diagnose` — the anchor keys must show ✓.
+3. Mount your ESP/Clover volume and verify `nvram.plist` contains `efi-boot-device`.
+4. Some Clover builds read the file at the volume root, others inside `EFI/CLOVER/` — this tool writes to the volume root.
+
+### Choice lost after restarting from an older OS
+
+The daemon can only capture choices made *while it is running*. If the restart was triggered from a system without the daemon, nothing wrote the choice. Fix: install the daemon on that system too (v1.4 runs on Mavericks+ HFS boots), or perform one Startup Disk click from an OS that has it.
+
+### Conflicts with my EFI mounting tool
+
+The daemon reuses an existing mount of the target volume — wherever it is mounted (`/Volumes/EFI`, `/private/tmp/ESP`, …) — and only mounts transiently (~1–2 s) when nothing exists. On a rare collision, simply remount: **your tool always has priority**.
+
+### Multi-disk rigs
+
+v1.3+ scans **all internal disks** (boot disk first) for a volume hosting `EFI/CLOVER`. The first match wins; external and USB drives are excluded by design. Note: with several Clover volumes present, the daemon writes to the first discovered one — keep your Clover installations at the same version to avoid drift.
+
+### Reset everything
+
+    sudo ./CloverLogoutHook.command clean
+    # then: ONE Startup Disk click to re-seed the anchor
+
+> ⚠️ After `clean` or `uninstall`, the sticky anchor is **gone** — make ONE Startup Disk click to re-seed it before relying on persistence again.
+
+### Filing an issue
+
+Always include the four musketeers:
+
+- Full output of `./CloverLogoutHook.command diagnose`
+- Output of `./CloverLogoutHook.command status`
+- Last 30 lines of `/Library/Logs/CloverHook/nvramhook.log`
+- Your macOS version(s), `diskutil list`, and Clover version
+
+---
+
+## Filesystem Footprint
+
+| Path | Purpose |
+|---|---|
+| `/usr/local/bin/clover-logout-hook` | Installed script (copy of the `.command`) |
+| `/Library/LaunchDaemons/com.clover.nvramhook.daemon.plist` | LaunchDaemon descriptor |
+| `<Clover-volume-root>/nvram.plist` | What Clover imports every boot |
+| `/Library/Logs/CloverHook/nvramhook.log` | Event log (auto-rotated at 400 KB) |
+| `/Library/Logs/CloverHook/last.xml` | Live NVRAM baseline |
+| `/Library/Logs/CloverHook/sticky.xml` | Persistent anchor |
+| `/Library/Logs/CloverHook/last-esp.txt` | Cached Clover-volume identifier |
+| `/private/var/.CloverEFI/` | Transient hidden mount point (only during write) |
+
+---
+
+## macOS Compatibility
+
+### Required by design
+
+- **APFS *or* HFS+ boot volume** — the resolver handles both worlds (v1.4): APFS synthesized chains and plain HFS+ disks. On APFS rigs it walks the `Physical Store` markers; on HFS it takes the boot disk directly.
+- **`/usr/libexec/PlistBuddy`** — available since **10.5 Leopard**, stable API.
+- **`launchctl bootstrap system`** — modern LaunchDaemon API introduced in **10.11 El Capitan**. Falls back to `launchctl load -w` if bootstrap fails.
+- **`perl -MMIME::Base64`** — bundled with every macOS, unchanged for years.
+
+### Compatibility matrix
+
+| macOS | Version | Status |
+|---|---|---|
+| **Snow Leopard** | 10.6 | ✅ **Validated — v1.6.2 HFS boot support** |
+| **Lion** | 10.7 | ✅ **Validated — v1.6.2 HFS boot support** |
+| **Mountain Lion** | 10.8 | ✅ **Validated — v1.6.2 HFS boot support** |
+| **Mavericks** | **10.9** | ✅ **Validated — v1.4 HFS boot support** |
+| **Yosemite** | **10.10** | ✅ **Validated** |
+| **El Capitan** | **10.11** | ✅ **Validated** |
+| **Sierra** | **10.12** | ✅ **Validated** |
+| **High Sierra** | **10.13** | ✅ **Validated** |
+| **Mojave** | **10.14** | ✅ **Validated** |
+| **Catalina** | **10.15** | ✅ **Validated** |
+| **Big Sur** | **11** | ✅ **Validated** |
+| **Monterey** | **12** | ✅ **Validated** |
+| **Ventura** | **13** | ✅ **Primary target — tested & validated** |
+| **Sonoma** | **14** | ✅ **Validated** |
+| **Sequoia** | **15** | ✅ **Validated** |
+| **Tahoe** | **26** | ✅ **Validated** |
+
+> 🍀 **Multi-OS rigs:** the daemon only needs to run on the modern macOS installations you boot from. Older systems (Snow Leopard, Lion…) boot through the same Clover + `nvram.plist` chain and are fully covered by the persisted keys — no daemon required on them. **Validated in the field on the same machine.** 🐅
+
+---
+
+## Zero Dependencies Statement
+
+    bash            ✓ built-in since macOS 1.0
+    awk, sed        ✓ built-in since macOS 1.0
+    perl            ✓ bundled since macOS 10.3 (MIME::Base64 included)
+    PlistBuddy      ✓ /usr/libexec since macOS 10.5
+    plutil          ✓ built-in since macOS 10.5
+    diskutil        ✓ built-in since macOS 10.0
+    nvram           ✓ built-in since macOS 10.0
+    launchctl       ✓ built-in since macOS 10.4
+
+> ✅ **No Homebrew. No Xcode CLT. No Python. No Node. No git.**
+> The script can be copied to any Hackintosh with Clover Legacy and works immediately after `install`.
+
+---
+
+## Performance & System Impact
+
+*0.1% on average — measured on a machine (Legacy BIOS) running the v1.6.2 daemon — real-world numbers from Activity Monitor and `ps aux`. Validated on macOS.*
+
+### 🧠 RAM Usage
+
+| Component | Footprint |
+|---|---|
+| Sleeping bash process | **~2–4 MB** RSS |
+| Sub-processes (nvram, awk, grep — spawn then released) | ~30 ms per cycle, then freed |
+| **Total stable** | **~3–5 MB constant** |
+
+*For comparison: a single Safari tab = 200–800 MB. The daemon is invisible in Activity Monitor.*
+
+### ⚙️ CPU Usage
+
+The **live-wins + fast-path design** keeps the CPU near zero:
+
+| Phase | Frequency | CPU Cost |
+|---|---|---|
+| **Sleep loop** (`sleep 2`) | Continuous | **~0%** |
+| **Cheap check** (nvram dump + cmp) | Every 2 s | ~15–30 ms |
+| **Full sync** (mount + merge + write) | Only on real change | ~1–2 s one-shot |
+| **Self-heal verify** | Every 60 s | Same as cheap check |
+
+| State | CPU |
+|---|---|
+| **99% of the time** (idle) | **0.0%** — daemon sleeps |
+| Startup Disk click | One spike at 1–3% for ~200 ms |
+| **Daily average** | **< 0.1%** |
+
+### 💾 Disk I/O
+
+| Situation | ESP Write |
+|---|---|
+| NVRAM unchanged (99% of the time) | **ZERO** — not even mounted |
+| Real change detected | 1 mount + 1 write (~2 KB) + unmount |
+
+### 🔋 Battery / Energy
+
+    Energy impact   : NEGLIGIBLE
+    - Daemon sleeps 99.9% of the time (sleep = zero CPU)
+    - No network, no GPU, no high-precision timers
+    - Estimated average draw: < 0.01 W
+
+### 🎯 Why this design matters (for the Clover PKG)
+
+| Production daemon criteria | CloverLogoutHook |
+|---|---|
+| Minimal RAM | ✅ 3–5 MB |
+| Invisible CPU | ✅ fast-path + sleep loop |
+| Zero unnecessary disk I/O | ✅ change-detection only |
+| No external dependencies | ✅ macOS built-ins only |
+| Clean, rotating logging | ✅ 400 KB cap |
+| Clean teardown | ✅ transient mount |
+
+### 🧪 Verify it yourself
+
+    ps aux | grep clover-logout-hook | grep -v grep
+    # → %CPU and %MEM columns
+
+    # A/B proof:
+    sudo launchctl bootout system/com.clover.nvramhook.daemon
+    ps aux | grep clover-logout-hook | grep -v grep
+    sudo launchctl bootstrap system /Library/LaunchDaemons/com.clover.nvramhook.daemon.plist
+
+---
+
+## Credits
+
+Built by [chris1111](https://github.com/chris1111) and [AI GLM-5](https://z.ai/model-api) during a live debugging session (August 2026).
+
+---
+
+<div align="center">
+
+**CloverLogoutHook**
+
+Made with ♥ for the Hackintosh Legacy community.
+
+License: GPL-3.0 Copyright © 2026 CloverHackyColor, All Rights Reserved.
+
+</div>
+
+<!--
+  ═══════════════ END OF WIKI README.MD ═══════════════
+-->
+
 
 Fixing-DSDT
 ===========
